@@ -45,7 +45,8 @@ func fetchWallpaperLink() (string, error) {
 
 // Returns the filename for a wallpaper link
 // Found in the id GET parameter
-func getWallpaperName(link string) (string, error) {
+// If overrideName is non-empty, uses that as the name instead
+func getWallpaperName(link string, overrideName string) (string, error) {
 	// Parse the wallpaper link into a *URL
 	u, err := url.Parse(link)
 
@@ -65,7 +66,14 @@ func getWallpaperName(link string) (string, error) {
 		return "", errors.New(fmt.Sprintf("id GET parameter is not valid in link: %s. Cannot resolve wallpaper filename.", link))
 	}
 
-	return idParam[0], nil
+	filename := idParam[0]
+
+	if overrideName != "" {
+		ext := filepath.Ext(filename)
+		filename = fmt.Sprintf("%s%s", overrideName, ext)
+	}
+
+	return filename, nil
 }
 
 // Saves wallpaper from link to destination
@@ -101,6 +109,7 @@ func saveWallpaper(link string, dest string, filename string) (string, error) {
 
 func main() {
 	dest := flag.String("output-dir", "", "Output directory to save wallpaper to")
+	overrideFilename := flag.String("filename", "", "Name to give the wallpaper picture. Extension is automatically added.")
 	flag.Parse()
 
 	if *dest == "" {
@@ -115,7 +124,7 @@ func main() {
 
 	log.Printf("Found wallpaper link: %s\n", link)
 
-	filename, err := getWallpaperName(link)
+	filename, err := getWallpaperName(link, *overrideFilename)
 
 	if err != nil {
 		log.Fatal(err)
