@@ -14,11 +14,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const BING_URL = "https://www.bing.com"
+const bingURL = "https://www.bing.com"
 
 // Fetches wallpaper link from Bing
 func fetchWallpaperLink() (string, error) {
-	resp, err := http.Get(BING_URL)
+	resp, err := http.Get(bingURL)
 
 	if err != nil {
 		return "", err
@@ -37,10 +37,10 @@ func fetchWallpaperLink() (string, error) {
 	link, exists := sel.Attr("href")
 
 	if !exists {
-		return "", errors.New("Could not find #preloadBg element on Bing. Cannot fetch wallpaper link.")
+		return "", errors.New("Could not find #preloadBg element on Bing. Cannot fetch wallpaper link")
 	}
 
-	return fmt.Sprintf("%s%s", BING_URL, link), nil
+	return fmt.Sprintf("%s%s", bingURL, link), nil
 }
 
 // Returns the filename for a wallpaper link
@@ -59,11 +59,11 @@ func getWallpaperName(link string, overrideName string) (string, error) {
 	idParam, ok := getParams["id"]
 
 	if !ok {
-		return "", errors.New(fmt.Sprintf("Could not find id GET parameter in link: %s. Cannot resolve wallpaper filename.", link))
+		return "", fmt.Errorf("Could not find id GET parameter in link: %s. Cannot resolve wallpaper filename", link)
 	}
 
 	if len(idParam) != 1 {
-		return "", errors.New(fmt.Sprintf("id GET parameter is not valid in link: %s. Cannot resolve wallpaper filename.", link))
+		return "", fmt.Errorf("id GET parameter is not valid in link: %s. Cannot resolve wallpaper filename", link)
 	}
 
 	filename := idParam[0]
