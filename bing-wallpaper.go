@@ -2,14 +2,14 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"path/filepath"
-	"io"
 	"os"
-	"flag"
+	"path/filepath"
 
 	"github.com/PuerkitoBio/goquery"
 )
