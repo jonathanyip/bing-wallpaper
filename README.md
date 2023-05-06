@@ -16,6 +16,9 @@ $ bing-wallpaper -output-dir ~/Pictures
 
 # Saves wallpaper with a custom filename
 $ bing-wallpaper -output-dir ~/Pictures -filename wallpaper1
+
+# Converts the image from webp to png automatically
+$ bing-wallpaper -convert-webp
 ```
 
 ## Copyright stuff
