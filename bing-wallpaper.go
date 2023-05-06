@@ -4,14 +4,17 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"golang.org/x/image/webp"
 )
 
 const bingURL = "https://www.bing.com"
@@ -107,9 +110,55 @@ func saveWallpaper(link string, dest string, filename string) (string, error) {
 	return outputDest, nil
 }
 
+// Remove extension from filename
+func removeFilenameExtension(filename string) string {
+	return strings.TrimSuffix(filename, filepath.Ext(filename))
+}
+
+// Checks if the filename has the extension webp
+func isWebp(filename string) bool {
+	return filepath.Ext(filename) == ".webp"
+}
+
+// Converts a webp file to a png file
+func convertWebpToPng(filename string) (string, error) {
+	if !isWebp(filename) {
+		return "", fmt.Errorf("File %s is not a webp file", filename)
+	}
+
+	// Open the webp file
+	f, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+
+	defer f.Close()
+
+	img, err := webp.Decode(f)
+	if err != nil {
+		return "", err
+	}
+
+	newFilename := removeFilenameExtension(filename) + ".png"
+	pngFile, err := os.Create(newFilename)
+	if err != nil {
+		return "", err
+	}
+	defer pngFile.Close()
+
+	err = png.Encode(pngFile, img)
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("Converted %s to png\n", filename)
+	return newFilename, nil
+}
+
 func main() {
 	dest := flag.String("output-dir", "", "Output directory to save wallpaper to")
 	overrideFilename := flag.String("filename", "", "Name to give the wallpaper picture. Extension is automatically added.")
+	convertWebp := flag.Bool("convert-webp", false, "Automatically convert webp files to png")
 	flag.Parse()
 
 	if *dest == "" {
@@ -137,4 +186,13 @@ func main() {
 	}
 
 	log.Printf("Saved wallpaper to: %s\n", finalDest)
+
+	if *convertWebp {
+		pngFinalDest, err := convertWebpToPng(finalDest)
+		if err != nil {
+			log.Fatal(err)
+		}
+		finalDest = pngFinalDest
+		log.Printf("Saved png wallpaper to: %s\n", pngFinalDest)
+	}
 }
