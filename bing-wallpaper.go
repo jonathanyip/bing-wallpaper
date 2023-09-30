@@ -21,7 +21,16 @@ const bingURL = "https://www.bing.com"
 
 // Fetches wallpaper link from Bing
 func fetchWallpaperLink() (string, error) {
-	resp, err := http.Get(bingURL)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", bingURL, nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47")
+
+	resp, err := client.Do(req)
 
 	if err != nil {
 		return "", err
